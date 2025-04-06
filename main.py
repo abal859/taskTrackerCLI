@@ -2,6 +2,7 @@
 
 import task_functions as tf
 import argparse
+from termcolor import colored
 
 def interactive_mode():
     while True:
@@ -20,7 +21,7 @@ def main(cmd_args=None):
     subparsers = parser.add_subparsers(dest="command")
 
     add_parser = subparsers.add_parser("add", help="Add a task")
-    add_parser.add_argument("description", type=str, help="Description of a task")
+    add_parser.add_argument("description", type=str, nargs="+", help="Description of a task")
 
     del_parser = subparsers.add_parser("delete", help="Delete a task")
     del_parser.add_argument("id_task", type=int, help="ID of the task to remove")
@@ -35,19 +36,19 @@ def main(cmd_args=None):
     mark_done_parser = subparsers.add_parser("mark-done", help="Mark task done")
     mark_done_parser.add_argument("id_task", type=int, help="ID of the task to mark done")
 
+    subparsers.add_parser("quit", help="Quit the program")
     subparsers.add_parser("list", help="List all tasks")
     subparsers.add_parser("list-done", help="List done tasks")
     subparsers.add_parser("list-in-progress", help="List in progress tasks")
     subparsers.add_parser("list-todo", help="List todo tasks")
 
     args = parser.parse_args(cmd_args)
-
-    if args.command is None:
-        parser.print_help()
-        return
+    if not args.command: parser.print_help()
 
     match(args.command):
-        case "add": tf.add_task(args.description)
+        case "add": 
+            description = ' '.join(args.description)
+            tf.add_task(description)
         case "delete": tf.del_task(args.id_task)
         case "update": tf.update_task(args.id_task, args.new_description)
         case "mark-in-progress": tf.mark_in_progress(args.id_task)
@@ -56,6 +57,7 @@ def main(cmd_args=None):
         case "list-done": tf.list_done()
         case "list-in-progress": tf.list_in_progress()
         case "list-todo": tf.list_todo()
+        case "quit": tf.quit()
         case _ : parser.print_help()
 
 if __name__ == "__main__":

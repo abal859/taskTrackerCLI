@@ -1,4 +1,5 @@
-import json, utils
+import json, utils, sys
+from termcolor import colored
 
 def load_tasks():
     try:
@@ -22,6 +23,7 @@ def add_task(description):
         "updatedAt": time,
     }
     tasks.append(task)
+    print(colored(f"Task {description} added succesfully! ✔️", "green"))
     save_tasks(tasks)
 
 def del_task(id_task):
@@ -31,6 +33,7 @@ def del_task(id_task):
     if len(new_tasks) < len(tasks):
         for i, task in enumerate(new_tasks, start=1):
             task["id"] = i
+        print(colored(f"Task {id_task} deleted succesfully! ✔️", "green"))
         save_tasks(new_tasks)
 
 def update_task(id_task, new_description):
@@ -40,7 +43,11 @@ def update_task(id_task, new_description):
         if task["id"] == id_task:
             task["description"] = new_description
             task["updatedAt"] = time
-    save_tasks(tasks)
+            print(colored(f"Task {id_task} updated to {new_description} succesfully! ✔️", "green"))
+            save_tasks(tasks)
+            return
+    print(colored(f"Task {id_task} can't be find", "red"))
+    
 
 def mark_in_progress(id_task):
     time = utils.cur_time()
@@ -49,7 +56,10 @@ def mark_in_progress(id_task):
         if task["id"] == id_task:
             task["status"] = "in-progress"
             task["updatedAt"] = time
-    save_tasks(tasks)
+            print(colored(f"Task {id_task} has been marked in progress succesfully! ✔️", "green"))
+            save_tasks(tasks)
+            return
+    print(f"Task {id_task} can't be find")
 
 def mark_done(id_task):
     time = utils.cur_time()
@@ -58,18 +68,27 @@ def mark_done(id_task):
         if task["id"] == id_task:
             task["status"] = "done"
             task["updatedAt"] = time
-    save_tasks(tasks)
+            print(colored(f"Task {id_task} has been marked done succesfully! ✔️", "green"))
+            status = True
+            save_tasks(tasks)
+            return
+    print(colored(f"Task {id_task} can't be find", "red"))
+    
 
 def list_all_tasks():
     tasks = load_tasks()
     for task in tasks:
-        print(f"{task}\n")
+        match(task["status"]):
+            case "todo" : print(colored(f"{task}\n", "red"))
+            case "in-progress" : print(colored(f"{task}\n", "yellow"))
+            case "done" : print(colored(f"{task}\n", "green"))
+        
 
 def list_done():
     tasks = load_tasks()
     for task in tasks:
         if task["status"] == "done":
-            print(f"{task}\n")
+            print(colored(f"{task}\n"), "green")
 
 def list_todo():
     tasks = load_tasks()
@@ -82,3 +101,6 @@ def list_in_progress():
     for task in tasks:
         if task["status"] == "in-progress":
             print(task)
+
+def quit():
+    sys.exit(0)
